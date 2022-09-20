@@ -9,7 +9,13 @@ import { isUserAuthorized } from "./middleware/authorization.js";
 import report from "./routes/report.js";
 
 dotenv.config()
-mongoose.connect(process.env.APPMONGOURL);
+try {
+   mongoose.connect(process.env.APPMONGOURL, () => {
+      console.log("database connected")
+   });
+} catch (err) {
+   console.log(err)
+}
 
 const app = express()
 app.use(bodyParser.json())
@@ -19,7 +25,7 @@ app.use("/poster", poster_router)
 app.use("/attendee", attendee_router)
 app.use("/categories", isUserAuthorized, category)
 app.use("/quiz", isUserAuthorized, quiz)
-app.use("/report",isUserAuthorized, report)
+app.use("/report", isUserAuthorized, report)
 
 app.listen(3000, () => {
    console.log("server good");
