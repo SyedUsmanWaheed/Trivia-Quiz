@@ -9,7 +9,7 @@ import UserModel from "../models/user.js"
 
 export const registerPoster = async function (req: Request, res: Response, next: NextFunction) {
 
-    let validation_schema: Schema<UserInterface> = joi.object().keys({
+    let validation_schema: Schema<User> = joi.object().keys({
         email: joi.string().required(),
         name: joi.string().required(),
         password: joi.string().required(),
