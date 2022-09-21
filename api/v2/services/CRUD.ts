@@ -1,11 +1,20 @@
-import { FilterQuery, HydratedDocument, Model, Document, LeanDocument, Require_id, LeanDocumentOrArray, ProjectionType, UpdateQuery } from "mongoose"
+import { FilterQuery, HydratedDocument, Model, Document, LeanDocument, Require_id, LeanDocumentOrArray, ProjectionType, UpdateQuery, UnpackedIntersection, PopulateOptions } from "mongoose"
 
 class CRUD {
-    static async getList<ModelInterface>(model: Model<ModelInterface>, filter: FilterQuery<ModelInterface>, projection?: ProjectionType<ModelInterface>, limit?: number, offset?: number): Promise<LeanDocument<HydratedDocument<ModelInterface>>[] | LeanDocument<Require_id<ModelInterface>>[]> {
+    static async getList<ModelInterface>(
+        model: Model<ModelInterface>,
+        filter: FilterQuery<ModelInterface>,
+        projection?: ProjectionType<ModelInterface>,
+        populateArray?: Array<string | PopulateOptions>,
+        limit?: number,
+        offset?: number
+    ): Promise<LeanDocument<Omit<HydratedDocument<ModelInterface, {}, {}>, never>>[]
+        | LeanDocument<Require_id<UnpackedIntersection<ModelInterface, {}>>>[]> {
 
         return await model.find(filter, projection)
             .skip(offset || 0)
             .limit(limit || 20)
+            .populate(populateArray || [])
             .lean().exec()
     }
 
