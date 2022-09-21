@@ -1,6 +1,7 @@
 import joi from "joi";
 import { addUser, searchUserByEmail } from "../services/user.js";
-import { sign_token, verify_token, decrypt, encrypt } from "../helpers/jwt.js";
+import { sign_token, verify_token } from "../helpers/jwt.js";
+import { decrypt, encrypt} from "../helpers/encryption.js"
 import CRUD from "../services/CRUD.js";
 import { User } from "../models/user.js";
 
