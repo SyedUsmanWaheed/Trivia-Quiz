@@ -1,4 +1,4 @@
-import { FilterQuery, HydratedDocument, Model, Document, LeanDocument, Require_id, LeanDocumentOrArray, ProjectionType, UpdateQuery, UnpackedIntersection, PopulateOptions } from "mongoose"
+import { FilterQuery, HydratedDocument, Model, Document, LeanDocument, Require_id, LeanDocumentOrArray, ProjectionType, UpdateQuery, UnpackedIntersection, PopulateOptions, LeanDocumentOrArrayWithRawType } from "mongoose"
 
 class CRUD {
     static async getList<ModelInterface>(
@@ -18,8 +18,17 @@ class CRUD {
             .lean().exec()
     }
 
-    static async getOne<ModelInterface>(model: Model<ModelInterface>, filter: FilterQuery<ModelInterface>, projection?: ProjectionType<ModelInterface>): Promise<ModelInterface | null> {
-        return await model.findOne(filter, projection)
+    static async getOne<ModelInterface>(
+        model: Model<ModelInterface>,
+        filter: FilterQuery<ModelInterface>,
+        projection?: ProjectionType<ModelInterface>,
+        populateArray?: Array<string | PopulateOptions>,
+    ): Promise<LeanDocumentOrArray<UnpackedIntersection<HydratedDocument<ModelInterface, {}, {}>, {}> | null>
+        | LeanDocumentOrArrayWithRawType<UnpackedIntersection<HydratedDocument<ModelInterface, {}, {}>, {}> | null, Require_id<UnpackedIntersection<ModelInterface, {}>>>> {
+        return await model
+            .findOne(filter, projection)
+            .populate(populateArray || [])
+            .lean().exec()
     }
 
     static async add<ModelInterface, DataInterface>(model: Model<ModelInterface>, data: DataInterface): Promise<ModelInterface | Document<unknown, any, ModelInterface>> {
