@@ -109,7 +109,7 @@ export const posterLogin = async function (req: Request, res: Response, next: Ne
             return res.json(response)
         }
         // had to remove decrypt
-        if (user.password  != req.body.password) {
+        if (user.password != req.body.password) {
             let response: DataResponse = { error: true, info: "invalid password" }
             return res.json(response)
         }
@@ -123,10 +123,10 @@ export const posterLogin = async function (req: Request, res: Response, next: Ne
             timestamp: Date.now()
         })
         let filter: FilterQuery<User> = { _id: user._id }
-        let data: UpdateQuery<User> =  { token: jwt_token }
-        let updated = await CRUD.oneUpdate(UserModel, filter, data)
+        let data: UpdateQuery<User> = { token: jwt_token }
+        let updated = await CRUD.updateOne(UserModel, filter, data)
 
-        let response : DataResponse = { error: false, info: "Successfully Logged in", data: data }
+        let response: DataResponse = { error: false, info: "Successfully Logged in", data: data }
         return res.json(response)
     }
     catch (err) {
@@ -134,7 +134,7 @@ export const posterLogin = async function (req: Request, res: Response, next: Ne
     }
 }
 
-export const attendeeLogin = async function (req: Request, res: Response, next:NextFunction) {
+export const attendeeLogin = async function (req: Request, res: Response, next: NextFunction) {
     let validation_schema: Schema<User> = joi.object().keys({
         email: joi.string().required(),
         password: joi.string().required()
@@ -146,7 +146,7 @@ export const attendeeLogin = async function (req: Request, res: Response, next:N
     }
 
     try {
-        let query : FilterQuery<User> = {email: req.body.email}
+        let query: FilterQuery<User> = { email: req.body.email }
         let user = await CRUD.getOne(UserModel, query)
         if (!user) {
             let response: DataResponse = { error: true, info: "user does not exist" }
@@ -166,10 +166,10 @@ export const attendeeLogin = async function (req: Request, res: Response, next:N
             user_id: user._id,
             timestamp: Date.now()
         })
-        let filter: FilterQuery<User>= { _id: user._id }
+        let filter: FilterQuery<User> = { _id: user._id }
         let data: UpdateQuery<User> = { token: jwt_token }
-        let updated = await CRUD.oneUpdate(UserModel, filter, data )
-        let response : DataResponse = { error: false, info: "Successfully Logged in", data: data }
+        let updated = await CRUD.updateOne(UserModel, filter, data)
+        let response: DataResponse = { error: false, info: "Successfully Logged in", data: data }
         return res.json(response)
     }
     catch (err) {
