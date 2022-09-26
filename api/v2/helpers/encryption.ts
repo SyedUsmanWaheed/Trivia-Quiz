@@ -2,10 +2,10 @@ import crypto from "crypto";
 
 export function encrypt(data: string, key?: string): string {
 
-    key = process.env.APPCRYPTOVERIFICATIONENCRYPTIONKEY || ""
+    key = "nVRQO_K1GVt}yH1Plkl9?V~EWu-/1y67" || ""
 
     let algorithm: crypto.CipherCCMTypes = "aes-256-ccm"
-    let input_vector: crypto.BinaryLike = process.env.APPCRYPTOVERIFICATIONENCRYPTIONVECTOR || ""
+    let input_vector: crypto.BinaryLike = "MIGeMA0GCSqGSIb3" || ""
 
     const cipher = crypto.createCipheriv(algorithm, key, input_vector)
 
@@ -19,10 +19,10 @@ export function encrypt(data: string, key?: string): string {
 
 export function decrypt(data : string , key?: string): string {
 
-    if (!key) key = process.env.APPCRYPTOVERIFICATIONENCRYPTIONKEY || "";
+    if (!key) key = "nVRQO_K1GVt}yH1Plkl9?V~EWu-/1y67" || "";
 
     let  algorithm : crypto.CipherCCMTypes = "aes-256-ccm"
-    let input_vector: crypto.BinaryLike = process.env.APPCRYPTOVERIFICATIONENCRYPTIONVECTOR || ""
+    let input_vector: crypto.BinaryLike = "MIGeMA0GCSqGSIb3" || ""
     const decipher = crypto.createDecipheriv(algorithm, key, input_vector);
 
     if (data) {

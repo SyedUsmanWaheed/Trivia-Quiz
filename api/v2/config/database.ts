@@ -2,7 +2,7 @@ import dotenv, { DotenvConfigOutput } from "dotenv"
 const output: DotenvConfigOutput = dotenv.config()
 import mongoose from "mongoose"
 
-let databaseURL: string = process.env.APPMONGOURL ?? "mongodb://127.0.0.1:27017/quiz_system"
+let databaseURL: string =  "mongodb://127.0.0.1:27017/quiz_system"
 
 // Mongoose connecting event
 mongoose.connection.on('connecting', () => {

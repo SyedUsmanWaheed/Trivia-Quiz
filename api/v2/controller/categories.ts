@@ -36,3 +36,43 @@ export const addCategory = async function (req: Request, res: Response, next: Ne
     }
 
 }
+
+export const get_list = async function (req: Request, res: Response, next: NextFunction) {
+    try {
+        let filter: FilterQuery<Category> = {}
+        let list = await CRUD.getList(CategoryModel, filter)
+        if (list.length == 0) {
+            let response: DataResponse = { error: true, info: "List Empty" }
+            return res.json(response)
+        }
+        let response: DataResponse = { error: true, info: "This is the List", data: list }
+            return res.json(response)
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+
+export const search_category = async function (req: Request, res: Response, next: NextFunction) {
+    let validation_schema :Schema<Category> = joi.object().keys({
+        search: joi.string().required()
+    })
+    let { error, value } = validation_schema.validate(req.body)
+    if (error) {
+        let response: DataResponse = { error: true, info: error.message }
+        return res.json(response)
+    }
+
+    try {
+        let { search } = req.body
+        let filter: FilterQuery<Category> ={ name: { $regex: ".*" + search + ".*", $options: "i" } }
+        let searched = await CRUD.getList(CategoryModel, filter)
+        if (searched.length == 0) {
+            return res.json({ error: true, message: "nothing found" })
+        }
+        return res.json({ error: false, message: "Search Result", data: searched })
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
