@@ -37,7 +37,7 @@ export const registerPoster = async function (req: Request, res: Response, next:
             return res.json(response)
         }
 
-        body.password = (body.password)
+        body.password = encrypt(body.password)
 
         let db_response = await CRUD.add(UserModel, body)
 
@@ -78,7 +78,7 @@ export const registerAttendee = async function (req: Request, res: Response, nex
             email: req.body.email,
             name: req.body.name,
             // issue of type in decrypt and has to remove it
-            password: (req.body.password),
+            password: encrypt(req.body.password),
             type: req.body.type
         })
 
@@ -109,7 +109,7 @@ export const posterLogin = async function (req: Request, res: Response, next: Ne
             return res.json(response)
         }
         // had to remove decrypt
-        if (user.password != req.body.password) {
+        if (user.password != decrypt(req.body.password)) {
             let response: DataResponse = { error: true, info: "invalid password" }
             return res.json(response)
         }
@@ -154,7 +154,7 @@ export const attendeeLogin = async function (req: Request, res: Response, next: 
         }
         //user.password has a type of "String" which is not changing but decrypt takes a parameter of type "string" which is also not changing
         // so removing decrypt for the time being
-        if (user.password != req.body.password) {
+        if (user.password != decrypt(req.body.password)) {
             let response: DataResponse = { error: true, info: "invalid password" }
             return res.json(response)
         }

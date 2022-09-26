@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import joi, {Schema} from "joi";
-import mongoose, { FilterQuery, isValidObjectId, UpdateQuery } from "mongoose";
-import { Quiz, QuizInterface} from "../intefaces/quiz.js";
-import{ Report, ReportInterface } from "../intefaces/report.js"
+import joi, { Schema, Types } from "joi";
+import mongoose, { FilterQuery, isValidObjectId, LeanDocument, UpdateQuery } from "mongoose";
+import { Quiz, QuizInterface } from "../intefaces/quiz.js";
+import { Report, ReportInterface } from "../intefaces/report.js"
 import ReportModel from "../models/report.js"
 import CRUD from "../services/CRUD.js";
 import QuizModel from "../models/quiz.js"
@@ -29,7 +29,7 @@ export const add_quiz = async function (req: Request, res: Response, next: NextF
     })
     let { error, value } = validation_schema.validate(req.body)
     if (error) {
-        let response :DataResponse = { error: true, info: error.message }
+        let response: DataResponse = { error: true, info: error.message }
         return res.json(response)
     }
     try {
@@ -37,22 +37,22 @@ export const add_quiz = async function (req: Request, res: Response, next: NextF
         let valid_poster = await CRUD.getOne(UserModel, poster_filter)
 
         if (valid_poster == null) {
-            let response :DataResponse = { error: true, info:"This Poster Does not exist"  }
+            let response: DataResponse = { error: true, info: "This Poster Does not exist" }
             return res.json(response)
         }
         let category_filter: FilterQuery<Quiz> = { _id: req.body.category_id }
         let valid_category = await CRUD.getOne(CategoryModel, category_filter)
 
         if (valid_category == null) {
-            let response :DataResponse = { error: true, info:"This Category Does not exist"  }
+            let response: DataResponse = { error: true, info: "This Category Does not exist" }
             return res.json(response)
         }
 
         let attendee_filter: FilterQuery<Quiz> = { _id: req.body.attendee_id }
         let valid_attendee = await CRUD.getOne(UserModel, attendee_filter)
-        
+
         if (valid_attendee == null) {
-            let response :DataResponse = { error: true, info:"This Attendee Does not exist"  }
+            let response: DataResponse = { error: true, info: "This Attendee Does not exist" }
             return res.json(response)
         }
 
@@ -62,10 +62,10 @@ export const add_quiz = async function (req: Request, res: Response, next: NextF
             attendees: [req.body.attendee_id],
             questions: req.body.questions
         })
-        let response :DataResponse ={ error: false, info: "new quiz added", data: new_quiz }
+        let response: DataResponse = { error: false, info: "new quiz added", data: new_quiz }
         return res.json(response)
     }
-    catch (err) { 
+    catch (err) {
         console.log(err)
     }
 }
@@ -76,76 +76,93 @@ export const attend_quiz = async (req: Request, res: Response, next: NextFunctio
     })
     let { error, value } = validation_schema.validate(req.body)
     if (error) {
-        let response: DataResponse ={ error: true, info: error.message }
+        let response: DataResponse = { error: true, info: error.message }
         return res.json(response)
     }
     try {
-        let filter : FilterQuery<Quiz> = { _id: req.body.quiz_id }
+        let filter: FilterQuery<Quiz> = { _id: req.body.quiz_id }
         let quiz1 = await CRUD.getOne(QuizModel, filter)
 
         if (quiz1 == null) {
-            let response: DataResponse ={ error: true, info: " This Quiz Does not exist" }
+            let response: DataResponse = { error: true, info: " This Quiz Does not exist" }
             return res.json(response)
         }
 
-        let query: FilterQuery<Quiz> ={ _id: req.body.quiz_id }
+        let query: FilterQuery<Quiz> = { _id: req.body.quiz_id }
+
         let data: UpdateQuery<Quiz> = { attendees: req.user.user_id }
-        let quiz = await CRUD.push(QuizModel, query , data)
+
+        let quiz = await CRUD.push(QuizModel, query, data)
 
         if (quiz.modifiedCount != 1) {
-            let response: DataResponse ={ error: true, info: "could not push"  }
+            let response: DataResponse = { error: true, info: "could not push" }
             return res.json(response)
         }
-        let response: DataResponse ={ error: true, info: "Attendee Successfully added"  }
+        let response: DataResponse = { error: true, info: "Attendee Successfully added" }
         return res.json(response)
     } catch (err) {
         console.log(err)
     }
 }
 
-export const check_quiz = async function (req: Request, res: Response, next:NextFunction) {
-    let validation_schema :Schema<Quiz>= joi.object().keys({
+export const check_quiz = async function (req: Request, res: Response, next: NextFunction) {
+    interface Body {
+        quiz_id: mongoose.Types.ObjectId,
+        answers: [string]
+    }
+
+    let validation_schema: Schema<Body> = joi.object().keys({
         quiz_id: joi.string().required(),
         answers: joi.array().required()
     })
+
     let { error, value } = validation_schema.validate(req.body)
     if (error) {
         return res.json({ error: true, info: error.message })
     }
+
     try {
 
-        if(! isValidObjectId(req.body.quiz_id))  {
-            return res.json({error: true, info: "id not valid"})
-        }
-        let filter : FilterQuery<Quiz> = { _id: req.body.quiz_id }
-        let quiz = await CRUD.getOne(QuizModel, filter) 
+        let body: Body = req.body
 
-        if (quiz == null) {
+        if (!isValidObjectId(body.quiz_id)) {
+            return res.json({ error: true, info: "id not valid" })
+        }
+
+        let filter: FilterQuery<Quiz> = { _id: body.quiz_id }
+
+        let quiz: LeanDocument<Quiz> | null = await CRUD.getOne(QuizModel, filter)
+
+        if (!quiz) {
             return res.json({ error: true, info: " This Quiz Does not exist" })
         }
-        let correct = 0
-        let incorrect = 0
-        quiz.questions.forEach((question, index) => {
-            // console.log(question)
-            if (quiz.questions[index].answer == req.body.answers[index]){
-                correct +=1
-            } else{
-                incorrect+=1
-            }
-        })
-        let percentage = (correct/(correct+incorrect))*100
-        let data = {
-            quiz_id : req.body.quiz_id,
-            user_id : req.user.user_id,
-            stats: {
-                correct,
-                incorrect,
-                percentage
-            }           
+
+        interface Stats {
+            correct: number,
+            incorrect: number,
+            percentage: number
         }
+
+        let stats: Stats = { correct: 0, incorrect: 0, percentage: 0 }
+        stats = quiz.questions.reduce((prev, question, index): Stats => {
+            if (question.answer == body.answers[index]) {
+                return { ...prev, correct: prev.correct + 1 }
+            }
+            return { ...prev, incorrect: prev.incorrect + 1 }
+        }, stats)
+
+        stats.percentage = (stats.correct / (stats.correct + stats.incorrect)) * 100
+
+        let data: Report = {
+            quiz_id: body.quiz_id,
+            user_id: req.user.user_id,
+            stats
+        }
+
         let report = await CRUD.add(ReportModel, data)
         report.save();
-        let response: DataResponse ={ error: false, info: "quiz checked", data: {correct, incorrect, percentage} }
+        
+        let response: DataResponse = { error: false, info: "quiz checked", data: stats }
         return res.json(response)
     } catch (err) {
         console.log(err)

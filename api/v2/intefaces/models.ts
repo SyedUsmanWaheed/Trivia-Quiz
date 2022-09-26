@@ -2,12 +2,12 @@ import { Document, Types } from "mongoose"
 
 export interface User {
     _id?: Types.ObjectId
-    name: String,
-    email: String,
-    type: String,
-    password: String | null,
-    token?: String | null
-    __v?: Number
+    name: string,
+    email: string,
+    type: string,
+    password: string,
+    token?: string | null
+    __v?: number
 }
 
 export type UserInterface = User & Document

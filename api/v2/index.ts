@@ -8,19 +8,26 @@ import bodyParser from "body-parser"
 import { attendee_router, poster_router } from "./routes/user.js"
 import category from "./routes/category.js";
 import quiz from "./routes/quiz.js";
-import { User } from "./intefaces/models.js";
 import { JwtPayload } from "jsonwebtoken";
+import { Types } from "mongoose";
 
 const app: Application = express()
 
 const port: Number = 3000
 declare global {
-    namespace Express {
-      interface Request {
-        user: string | JwtPayload | object
-      }
-    }
-  }
+	namespace Express {
+		interface Request {
+			user: JwtPayload
+		}
+	}
+}
+
+declare module "jsonwebtoken" {
+	export interface JwtPayload {
+		user_id: Types.ObjectId,
+		timestamp: number
+	}
+}
 
 app.use(bodyParser.json())
 // console.log(process.env)
@@ -32,5 +39,5 @@ app.use("/quiz", quiz)
 // app.use("/report", isUserAuthorized, report)
 
 app.listen(port, () => {
-    console.log(`server is running on port ${port}`)
+	console.log(`server is running on port ${port}`)
 })
