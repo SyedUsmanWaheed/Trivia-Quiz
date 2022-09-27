@@ -7,6 +7,7 @@ export interface User {
     type: string,
     password: string,
     token?: string | null
+    fcm_token?: string|null
     __v?: number
 }
 

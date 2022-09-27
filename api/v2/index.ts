@@ -15,18 +15,28 @@ const app: Application = express()
 
 const port: Number = 3000
 declare global {
-	namespace Express {
-		interface Request {
-			user: JwtPayload
-		}
-	}
+    namespace Express {
+        interface Request {
+            user: JwtPayload
+        }
+    }
+
+    namespace NodeJS {
+        interface ProcessEnv {
+            APPCRYPTOVERIFICATIONENCRYPTIONKEY: string
+            APPCRYPTOVERIFICATIONENCRYPTIONVECTOR: string
+            APPMONGOURL: string
+            APPJWTKEY: string
+        }
+    }
+
 }
 
 declare module "jsonwebtoken" {
-	export interface JwtPayload {
-		user_id: Types.ObjectId,
-		timestamp: number
-	}
+    export interface JwtPayload {
+        user_id: Types.ObjectId,
+        timestamp: number
+    }
 }
 
 app.use(bodyParser.json())
@@ -39,5 +49,5 @@ app.use("/quiz", quiz)
 // app.use("/report", isUserAuthorized, report)
 
 app.listen(port, () => {
-	console.log(`server is running on port ${port}`)
+    console.log(`server is running on port ${port}`)
 })

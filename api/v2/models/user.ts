@@ -6,7 +6,8 @@ const user_schema = new Schema<UserInterface>({
     email: { type: String, required: true },
     type: { type: String, required: true },
     password: { type: String, default: null },
-    token: { type: String, default: null }
+    token: { type: String, default: null },
+    fcm_token : {type: String, default: null}
 })
 
 
