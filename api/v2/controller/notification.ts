@@ -24,7 +24,7 @@ export const notification_list = async (req: Request, res: Response, next: NextF
 
         let filter: FilterQuery<Notification> = { user_id: req.user.user_id }
 
-        let list = await CRUD.getList(NotificationModel, filter,{} ,{} , limit, offset)
+        let list = await CRUD.getList(NotificationModel, filter,{} ,[] , limit, offset)
 
         if (!list) {
             return res.json({ error: true, info: "no notification" })
