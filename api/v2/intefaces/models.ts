@@ -7,6 +7,12 @@ export interface User {
     type: string,
     password: string,
     token?: string | null
+    fcm_token?: string|null
+    web_socket?: string|null
+    location?: {
+        type: string
+        coordinates: [Number]
+    }
     __v?: number
 }
 

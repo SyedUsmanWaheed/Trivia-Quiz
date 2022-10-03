@@ -6,6 +6,7 @@ export function encrypt(data: string, key?: string): string {
 
     let algorithm: crypto.CipherCCMTypes = "aes-256-ccm"
     let input_vector: crypto.BinaryLike = "MIGeMA0GCSqGSIb3" || ""
+    console.log(input_vector)
 
     const cipher = crypto.createCipheriv(algorithm, key, input_vector)
 
